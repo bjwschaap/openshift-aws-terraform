@@ -4,6 +4,11 @@ variable "region" {
   default = "eu-west-1"
 }
 
+variable "azs" {
+  description = "The availability zones within the region"
+  default = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+}
+
 // The name we should use for our cluster, and base our resource names on
 variable "stackname" {
   description = "The name to use for the created cluster"

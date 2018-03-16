@@ -7,6 +7,8 @@ provider "aws" {
 
 //  Create the OpenShift cluster using our module.
 module "openshift" {
+  region                   = "${var.region}"
+  azs                      = "${var.azs}"
   source                   = "./modules/openshift"
   stackname                = "${var.stackname}"
   master_instance_type     = "t2.large"
