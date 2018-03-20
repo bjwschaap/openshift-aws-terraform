@@ -23,7 +23,7 @@ module "openshift" {
   public_key_path          = "${var.public_key_path}"
   public_hosted_zone       = "dev.schaap.cc"
   app_dns_prefix           = "app"
-  registry_s3_bucket_name  = "${var.stackname}-registry"
+  registry_s3_bucket_name  = "${var.stackname}-registry-2938a71237f18373c41e"
 }
 
 //  Output some useful variables for quick SSH access etc.
@@ -32,4 +32,7 @@ output "bastion-public_dns" {
 }
 output "bastion-public_ip" {
   value = "${module.openshift.bastion-public_ip}"
+}
+output "master-url" {
+  value = "${module.openshift.master-public_dns}"
 }

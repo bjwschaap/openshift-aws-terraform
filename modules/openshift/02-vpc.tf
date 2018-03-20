@@ -95,7 +95,7 @@ resource "aws_eip" "openshift_nat" {
 // first public subnet to bind to.
 resource "aws_nat_gateway" "openshift" {
   subnet_id     = "${aws_subnet.public-subnets.0.id}"
-  allocation_id = "${aws_eip.openshift_nat.allocation_id}"
+  allocation_id = "${aws_eip.openshift_nat.id}"
 
   tags {
     Name    = "${var.vpc_name}-ngw"

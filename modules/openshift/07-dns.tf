@@ -79,5 +79,5 @@ resource "aws_route53_record" "bastion_node" {
   name    = "bastion.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = 300
-  records = ["${aws_instance.bastion_node.public_ip}"]
+  records = ["${aws_eip.bastion.public_ip}"]
 }

@@ -1,3 +1,5 @@
+// this file describes the bastion host for SSH access into our Openshift cluster
+
 // First create the keypair to get onto the hosts
 resource "aws_key_pair" "keypair" {
   key_name   = "${var.key_name}"
