@@ -50,7 +50,7 @@ resource "aws_subnet" "public-subnets" {
   depends_on              = ["aws_internet_gateway.openshift"]
 
   tags {
-    Name              = "ose-public_subnet-${count.index}"
+    Name              = "ose-public_subnet-${count.index + 1}"
     Project           = "openshift"
     KubernetesCluster = "${var.stackname}"
   }
@@ -75,8 +75,9 @@ resource "aws_route_table" "public" {
 //  all public subnet instances access to the internet.
 resource "aws_route_table_association" "public-subnets" {
   count          = 3
-  subnet_id      = "${element(aws_subnet.public-subnets.id, count.index)}"
+  subnet_id      = "${element(aws_subnet.public-subnets.*.id, count.index)}"
   route_table_id = "${aws_route_table.public.id}"
+  depends_on     = ["aws_subnet.public-subnets"]
 }
 
 // Create an Elastic IP and let the NAT gateway use it
@@ -93,7 +94,6 @@ resource "aws_eip" "openshift_nat" {
 // Create a NAT gateway for the private subnets in the VPC. Just use the
 // first public subnet to bind to.
 resource "aws_nat_gateway" "openshift" {
-  vpc_id        = "${aws_vpc.openshift.id}"
   subnet_id     = "${aws_subnet.public-subnets.0.id}"
   allocation_id = "${aws_eip.openshift_nat.allocation_id}"
 
@@ -112,7 +112,7 @@ resource "aws_subnet" "private-subnets" {
   depends_on              = ["aws_nat_gateway.openshift"]
 
   tags {
-    Name              = "ose-private_subnet-${count.index}"
+    Name              = "ose-private_subnet-${count.index + 1}"
     Project           = "openshift"
     KubernetesCluster = "${var.stackname}"
   }
@@ -138,6 +138,7 @@ resource "aws_route_table" "private" {
 //  all private subnet instances access to the NAT gateway.
 resource "aws_route_table_association" "private-subnets" {
   count          = 3
-  subnet_id      = "${element(aws_subnet.private-subnets.id, count.index)}"
+  subnet_id      = "${element(aws_subnet.private-subnets.*.id, count.index)}"
   route_table_id = "${aws_route_table.private.id}"
+  depends_on     = ["aws_subnet.private-subnets"]
 }

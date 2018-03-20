@@ -1,7 +1,7 @@
 // This file contains all IAM policies and roles for our Openshift Resources
 
 // AssumeRole for policies
-resource "aws_iam_role" "assume_role" {
+resource "aws_iam_role" "instance_role" {
   name = "assume-role"
 
   assume_role_policy = <<EOF
@@ -13,7 +13,7 @@ resource "aws_iam_role" "assume_role" {
       "Principal": {
         "Service": "ec2.amazonaws.com"
       },
-      "Effect": "Allow",
+      "Effect": "Allow"
     }
   ]
 }
@@ -23,7 +23,7 @@ EOF
 // Policy for application/worker nodes
 resource "aws_iam_role_policy" "node_policy" {
   name = "node-describe"
-  role = "${aws_iam_role.assume_role.id}"
+  role = "${aws_iam_role.instance_role.name}"
 
   policy = <<EOF
 {
@@ -44,7 +44,7 @@ EOF
 // Policy for master nodes
 resource "aws_iam_role_policy" "master_policy" {
   name = "master-ec2-all"
-  role = "${aws_iam_role.assume_role.id}"
+  role = "${aws_iam_role.instance_role.name}"
 
   policy = <<EOF
 {

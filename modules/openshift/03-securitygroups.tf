@@ -31,7 +31,7 @@ resource "aws_security_group" "etcd_sg" {
     from_port       = 2379
     to_port         = 2380
     protocol        = "tcp"
-    security_groups = ["${aws_security_group.etcd_sg.id}"]
+    //security_groups = ["${aws_security_group.etcd_sg.id}"]
   }
 
   ingress {
@@ -90,18 +90,19 @@ resource "aws_security_group" "master_ext_elb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  egress {
-    description = "Allow access to the Openshift Web Console"
-    from_port   = "${var.master_api_port}"
-    to_port     = "${var.master_api_port}"
-    protocol    = "tcp"
-    security_groups = ["${aws_security_group.master_sg.id}"]
-  }
-
   tags {
     Name    = "ose-elb-master-sg"
     Project = "openshift"
   }
+}
+
+resource "aws_security_group_rule" "ext_lb_api_egress" {
+  security_group_id = "${aws_security_group.master_ext_elb_sg.id}"
+  type              = "egress"
+  description       = "Allow access to the Openshift Web Console"
+  from_port         = "${var.master_api_port}"
+  to_port           = "${var.master_api_port}"
+  protocol          = "tcp"
 }
 
 // Master internal loadbalancer rules
@@ -109,14 +110,6 @@ resource "aws_security_group" "master_int_elb_sg" {
   name        = "ose-int-elb-master-sg"
   description = "Master internal Loadbalancer"
   vpc_id      = "${aws_vpc.openshift.id}"
-
-  egress {
-    description = "Allow API access to the master nodes"
-    from_port   = "${var.master_api_port}"
-    to_port     = "${var.master_api_port}"
-    protocol    = "tcp"
-    security_groups = ["${aws_security_group.master_sg.id}"]
-  }
 
   egress {
     description = "Allow API access to the worker nodes"
@@ -130,6 +123,15 @@ resource "aws_security_group" "master_int_elb_sg" {
     Name    = "ose-int-elb-master-sg"
     Project = "openshift"
   }
+}
+
+resource "aws_security_group_rule" "int_lb_api_egress" {
+  security_group_id = "${aws_security_group.master_int_elb_sg.id}"
+  type              = "egress"
+  description       = "Allow API access to the master nodes"
+  from_port         = "${var.master_api_port}"
+  to_port           = "${var.master_api_port}"
+  protocol          = "tcp"
 }
 
 // Infra nodes rules
@@ -199,19 +201,11 @@ resource "aws_security_group" "node_sg" {
   vpc_id      = "${aws_vpc.openshift.id}"
 
   ingress {
-    description     = "Allow traffic from master to kubelet on the node"
-    from_port       = 10250
-    to_port         = 10250
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.master_sg.id}"]
-  }
-
-  ingress {
     description     = "Allow Gluster traffic between the nodes"
     from_port       = 24007
     to_port         = 24007
     protocol        = "tcp"
-    security_groups = ["${aws_security_group.node_sg.id}"]
+    //security_groups = ["${aws_security_group.node_sg.id}"]
   }
 
   ingress {
@@ -219,7 +213,7 @@ resource "aws_security_group" "node_sg" {
     from_port       = 24008
     to_port         = 24008
     protocol        = "tcp"
-    security_groups = ["${aws_security_group.node_sg.id}"]
+    //security_groups = ["${aws_security_group.node_sg.id}"]
   }
 
   ingress {
@@ -227,7 +221,7 @@ resource "aws_security_group" "node_sg" {
     from_port       = 2222
     to_port         = 2222
     protocol        = "tcp"
-    security_groups = ["${aws_security_group.node_sg.id}"]
+    //security_groups = ["${aws_security_group.node_sg.id}"]
   }
 
   ingress {
@@ -235,7 +229,7 @@ resource "aws_security_group" "node_sg" {
     from_port       = 49152
     to_port         = 49664
     protocol        = "tcp"
-    security_groups = ["${aws_security_group.node_sg.id}"]
+    //security_groups = ["${aws_security_group.node_sg.id}"]
   }
 
   ingress {
@@ -243,7 +237,7 @@ resource "aws_security_group" "node_sg" {
     from_port       = 10250
     to_port         = 10250
     protocol        = "tcp"
-    security_groups = ["${aws_security_group.node_sg.id}"]
+    //security_groups = ["${aws_security_group.node_sg.id}"]
   }
 
   ingress {
@@ -251,7 +245,7 @@ resource "aws_security_group" "node_sg" {
     from_port       = 4789
     to_port         = 4789
     protocol        = "udp"
-    security_groups = ["${aws_security_group.node_sg.id}"]
+    //security_groups = ["${aws_security_group.node_sg.id}"]
   }
 
   ingress {
@@ -266,6 +260,15 @@ resource "aws_security_group" "node_sg" {
     Name    = "ose-node-sg"
     Project = "openshift"
   }
+}
+
+resource "aws_security_group_rule" "kubelet_ingress" {
+  security_group_id = "${aws_security_group.node_sg.id}"
+  type              = "ingress"
+  description       = "Allow traffic to kubelet on the node"
+  from_port         = 10250
+  to_port           = 10250
+  protocol          = "tcp"
 }
 
 // Master nodes rules
@@ -335,7 +338,7 @@ resource "aws_security_group" "master_sg" {
     from_port       = "${var.master_api_port}"
     to_port         = "${var.master_api_port}"
     protocol        = "tcp"
-    security_groups = ["${aws_security_group.master_sg.id}"]
+    //security_groups = ["${aws_security_group.master_sg.id}"]
   }
 
   tags {

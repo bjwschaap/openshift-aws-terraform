@@ -11,8 +11,9 @@ resource "aws_route53_record" "openshift-master" {
   type    = "A"
 
   alias {
-    name    = "${aws_elb.master_ext_elb.dns_name}"
-    zone_id = "${aws_elb.master_ext_elb.zone_id}"
+    name                   = "${aws_elb.master_ext_elb.dns_name}"
+    zone_id                = "${aws_elb.master_ext_elb.zone_id}"
+    evaluate_target_health = true
   }
 }
 
@@ -23,8 +24,9 @@ resource "aws_route53_record" "internal-openshift-master" {
   type    = "A"
 
   alias {
-    name    = "${aws_elb.master_int_elb.dns_name}"
-    zone_id = "${aws_elb.master_int_elb.zone_id}"
+    name                   = "${aws_elb.master_int_elb.dns_name}"
+    zone_id                = "${aws_elb.master_int_elb.zone_id}"
+    evaluate_target_health = true
   }
 }
 
@@ -35,8 +37,9 @@ resource "aws_route53_record" "app_wildcard" {
   type    = "A"
 
   alias {
-    name    = "${aws_elb.infra_elb.dns_name}"
-    zone_id = "${aws_elb.infra_elb.zone_id}"
+    name                   = "${aws_elb.infra_elb.dns_name}"
+    zone_id                = "${aws_elb.infra_elb.zone_id}"
+    evaluate_target_health = true
   }
 }
 
@@ -44,7 +47,7 @@ resource "aws_route53_record" "app_wildcard" {
 resource "aws_route53_record" "master_nodes" {
   count   = 3
   zone_id = "${data.aws_route53_zone.selected.zone_id}"
-  name    = "ose-master0${count.index}.${data.aws_route53_zone.selected.name}"
+  name    = "ose-master0${count.index + 1}.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = 300
   records = ["${aws_instance.master_nodes.*.private_ip}"]
@@ -54,7 +57,7 @@ resource "aws_route53_record" "master_nodes" {
 resource "aws_route53_record" "infra_nodes" {
   count   = 3
   zone_id = "${data.aws_route53_zone.selected.zone_id}"
-  name    = "ose-infra-node0${count.index}.${data.aws_route53_zone.selected.name}"
+  name    = "ose-infra-node0${count.index + 1}.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = 300
   records = ["${aws_instance.infra_nodes.*.private_ip}"]
@@ -64,7 +67,7 @@ resource "aws_route53_record" "infra_nodes" {
 resource "aws_route53_record" "app_nodes" {
   count   = 3
   zone_id = "${data.aws_route53_zone.selected.zone_id}"
-  name    = "ose-app-node0${count.index}.${data.aws_route53_zone.selected.name}"
+  name    = "ose-app-node0${count.index + 1}.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = 300
   records = ["${aws_instance.infra_nodes.*.private_ip}"]
