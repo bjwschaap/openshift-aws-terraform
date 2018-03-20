@@ -21,6 +21,9 @@ resource "aws_instance" "bastion_node" {
     "aws_iam_instance_profile.node_instance_profile",
     "aws_subnet.public-subnets"
   ]
+  root_block_device    = {
+    delete_on_termination = true
+  }
 
   tags {
     Name    = "bastion.${data.aws_route53_zone.selected.name}"

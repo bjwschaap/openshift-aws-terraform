@@ -11,6 +11,9 @@ resource "aws_instance" "infra_nodes" {
     "${aws_security_group.node_sg.id}",
     "${aws_security_group.infra_sg.id}"
   ]
+  root_block_device    = {
+    delete_on_termination = true
+  }
   ebs_block_device     = {
     device_name           = "/dev/sda1"
     delete_on_termination = true
