@@ -17,5 +17,5 @@ variable "stackname" {
 
 //  The public key to use for SSH access.
 variable "public_key_path" {
-  default = "~/.ssh/ose-key.pub"
+  default = "~/.ssh/aws_ec2_key.pub"
 }

@@ -19,7 +19,7 @@ module "openshift" {
   vpc_cidr                 = "10.20.0.0/16"
   public_subnet_cidr_list  = ["10.20.1.0/24", "10.20.2.0/24", "10.20.3.0/24"]
   private_subnet_cidr_list = ["10.20.4.0/24", "10.20.5.0/24", "10.20.6.0/24"]
-  key_name                 = "OSE-Key"
+  key_name                 = "AWS-EC2-key"
   public_key_path          = "${var.public_key_path}"
   public_hosted_zone       = "dev.schaap.cc"
   app_dns_prefix           = "app"

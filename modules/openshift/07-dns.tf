@@ -50,7 +50,7 @@ resource "aws_route53_record" "master_nodes" {
   name    = "ose-master0${count.index + 1}.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = 300
-  records = ["${aws_instance.master_nodes.*.private_ip}"]
+  records = ["${element(aws_instance.master_nodes.*.private_ip, count.index)}"]
 }
 
 // Records for Infra nodes
@@ -60,7 +60,7 @@ resource "aws_route53_record" "infra_nodes" {
   name    = "ose-infra-node0${count.index + 1}.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = 300
-  records = ["${aws_instance.infra_nodes.*.private_ip}"]
+  records = ["${element(aws_instance.infra_nodes.*.private_ip, count.index)}"]
 }
 
 // Records for the app/worker nodes
@@ -70,7 +70,7 @@ resource "aws_route53_record" "app_nodes" {
   name    = "ose-app-node0${count.index + 1}.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = 300
-  records = ["${aws_instance.infra_nodes.*.private_ip}"]
+  records = ["${element(aws_instance.infra_nodes.*.private_ip, count.index)}"]
 }
 
 // Record for the Bastion host
