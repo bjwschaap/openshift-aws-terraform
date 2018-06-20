@@ -39,6 +39,14 @@ variable "app_node_count" {
   description = "The number of application/worker nodes, e.g. 3. These will be equally distributed along the AZs"
 }
 
+variable "master_node_count" {
+  description = "The number of master nodes, e.g. 3. These will be equally distributed along the AZs"
+}
+
+variable "infra_node_count" {
+  description = "The number of infra nodes, e.g. 3. These will be equally distributed along the AZs"
+}
+
 variable "vpc_name" {
   description = "The name for the VPC"
 }

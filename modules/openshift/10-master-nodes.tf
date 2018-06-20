@@ -1,12 +1,22 @@
 // This file contains the resource definitions for the master nodes
+data "template_file" "master_user_data" {
+  count = "${var.master_node_count}"
+  template = "${file("${path.module}/files/master_user_data.yml")}"
+
+  vars {
+    hostname = "ose-master-${count.index + 1}"
+    domain   = "${var.public_hosted_zone}"
+  }
+}
+
 resource "aws_instance" "master_nodes" {
-  count                   = 3
+  count                   = "${var.master_node_count}"
   ami                     = "${data.aws_ami.CentOS7.id}"
   instance_type           = "${var.master_instance_type}"
   iam_instance_profile    = "${aws_iam_instance_profile.master_instance_profile.id}"
   subnet_id               = "${element(aws_subnet.public-subnets.*.id, count.index)}"
   key_name                = "${aws_key_pair.keypair.key_name}"
-  user_data               = "${file("${path.module}/files/master_user_data.yml")}"
+  user_data               = "${element(data.template_file.master_user_data.*.rendered, count.index)}"
   vpc_security_group_ids  = [
     "${aws_security_group.node_sg.id}",
     "${aws_security_group.master_sg.id}",
@@ -53,7 +63,7 @@ resource "aws_instance" "master_nodes" {
   }
 
   tags {
-    Name              = "ose-master0${count.index + 1}.${data.aws_route53_zone.selected.name}"
+    Name              = "ose-master-${count.index + 1}.${var.public_hosted_zone}"
     Project           = "openshift"
     openshift-role    = "master"
     KubernetesCluster = "${var.stackname}"

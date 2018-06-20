@@ -10,6 +10,8 @@ data "template_file" "inventory" {
     internal_hostname    = "${aws_route53_record.internal-openshift-master.name}"
     hosted_zone          = "${var.public_hosted_zone}"
     app_node_count       = "${var.app_node_count}"
+    master_node_count    = "${var.master_node_count}"
+    infra_node_count     = "${var.infra_node_count}"
     app_dns_prefix       = "${var.app_dns_prefix}"
     vpc_cidr             = "${var.vpc_cidr}"
     github_client_id     = "${var.github_client_id}"

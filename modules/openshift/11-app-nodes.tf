@@ -1,4 +1,14 @@
 // This file contains the definition of the Openshift application/worker nodes
+data "template_file" "app_node_user_data" {
+  count = "${var.app_node_count}"
+  template = "${file("${path.module}/files/node_user_data.yml")}"
+
+  vars {
+    hostname = "ose-app-${count.index + 1}"
+    domain   = "${var.public_hosted_zone}"
+  }
+}
+
 resource "aws_instance" "app_nodes" {
   count                   = "${var.app_node_count}"
   ami                     = "${data.aws_ami.CentOS7.id}"
@@ -6,7 +16,7 @@ resource "aws_instance" "app_nodes" {
   iam_instance_profile    = "${aws_iam_instance_profile.node_instance_profile.id}"
   subnet_id               = "${element(aws_subnet.private-subnets.*.id, count.index)}"
   key_name                = "${aws_key_pair.keypair.key_name}"
-  user_data               = "${file("${path.module}/files/node_user_data.yml")}"
+  user_data               = "${element(data.template_file.app_node_user_data.*.rendered, count.index)}"
   vpc_security_group_ids  = [
     "${aws_security_group.node_sg.id}"
   ]
@@ -44,7 +54,7 @@ resource "aws_instance" "app_nodes" {
   }
 
   tags {
-    Name              = "ose-app-node0${count.index + 1}.${data.aws_route53_zone.selected.name}"
+    Name              = "ose-app-${count.index + 1}.${var.public_hosted_zone}"
     Project           = "openshift"
     openshift-role    = "app"
     KubernetesCluster = "${var.stackname}"

@@ -15,6 +15,8 @@ module "openshift" {
   node_instance_type       = "t2.xlarge"
   app_instance_type        = "t2.large"
   app_node_count           = 3
+  master_node_count        = 3
+  infra_node_count         = 3
   vpc_name                 = "${var.stackname}-vpc"
   vpc_cidr                 = "10.20.0.0/16"
   public_subnet_cidr_list  = ["10.20.1.0/24", "10.20.2.0/24", "10.20.3.0/24"]

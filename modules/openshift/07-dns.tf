@@ -45,9 +45,9 @@ resource "aws_route53_record" "app_wildcard" {
 
 // Records for master nodes
 resource "aws_route53_record" "master_nodes" {
-  count   = 3
+  count   = "${var.master_node_count}"
   zone_id = "${data.aws_route53_zone.selected.zone_id}"
-  name    = "ose-master0${count.index + 1}.${data.aws_route53_zone.selected.name}"
+  name    = "ose-master-${count.index + 1}.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = 300
   records = ["${element(aws_instance.master_nodes.*.private_ip, count.index)}"]
@@ -55,9 +55,9 @@ resource "aws_route53_record" "master_nodes" {
 
 // Records for Infra nodes
 resource "aws_route53_record" "infra_nodes" {
-  count   = 3
+  count   = "${var.infra_node_count}"
   zone_id = "${data.aws_route53_zone.selected.zone_id}"
-  name    = "ose-infra-node0${count.index + 1}.${data.aws_route53_zone.selected.name}"
+  name    = "ose-infra-${count.index + 1}.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = 300
   records = ["${element(aws_instance.infra_nodes.*.private_ip, count.index)}"]
@@ -65,9 +65,9 @@ resource "aws_route53_record" "infra_nodes" {
 
 // Records for the app/worker nodes
 resource "aws_route53_record" "app_nodes" {
-  count   = 3
+  count   = "${var.app_node_count}"
   zone_id = "${data.aws_route53_zone.selected.zone_id}"
-  name    = "ose-app-node0${count.index + 1}.${data.aws_route53_zone.selected.name}"
+  name    = "ose-app-${count.index + 1}.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = 300
   records = ["${element(aws_instance.infra_nodes.*.private_ip, count.index)}"]

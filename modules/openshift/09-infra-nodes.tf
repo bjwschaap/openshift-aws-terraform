@@ -1,12 +1,22 @@
 // This file contains the definition of the Openshift infestructure nodes
+data "template_file" "infra_user_data" {
+  count = "${var.infra_node_count}"
+  template = "${file("${path.module}/files/node_user_data.yml")}"
+
+  vars {
+    hostname = "ose-infra-${count.index + 1}"
+    domain   = "${var.public_hosted_zone}"
+  }
+}
+
 resource "aws_instance" "infra_nodes" {
-  count                   = 3
+  count                   = "${var.infra_node_count}"
   ami                     = "${data.aws_ami.CentOS7.id}"
   instance_type           = "${var.node_instance_type}"
   iam_instance_profile    = "${aws_iam_instance_profile.node_instance_profile.id}"
   subnet_id               = "${element(aws_subnet.private-subnets.*.id, count.index)}"
   key_name                = "${aws_key_pair.keypair.key_name}"
-  user_data               = "${file("${path.module}/files/node_user_data.yml")}"
+  user_data               = "${element(data.template_file.infra_user_data.*.rendered, count.index)}"
   vpc_security_group_ids  = [
     "${aws_security_group.node_sg.id}",
     "${aws_security_group.infra_sg.id}"
@@ -45,7 +55,7 @@ resource "aws_instance" "infra_nodes" {
   }
 
   tags {
-    Name              = "ose-infra-node0${count.index + 1}.${data.aws_route53_zone.selected.name}"
+    Name              = "ose-infra-${count.index + 1}.${var.public_hosted_zone}"
     Project           = "openshift"
     openshift-role    = "infra"
     KubernetesCluster = "${var.stackname}"
