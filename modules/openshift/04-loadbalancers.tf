@@ -8,7 +8,7 @@ resource "aws_elb" "master_int_elb" {
   internal                  = true
   security_groups           = ["${aws_security_group.master_int_elb_sg.id}"]
   subnets                   = ["${aws_subnet.private-subnets.*.id}"]
-  instances                 = []
+  instances                 = ["${aws_instance.master_nodes.*.id}"]
 
   health_check {
     healthy_threshold   = 2
@@ -39,7 +39,7 @@ resource "aws_elb" "master_ext_elb" {
   internal                  = false
   security_groups           = ["${aws_security_group.master_ext_elb_sg.id}"]
   subnets                   = ["${aws_subnet.public-subnets.*.id}"]
-  instances                 = []
+  instances                 = ["${aws_instance.master_nodes.*.id}"]
 
   health_check {
     healthy_threshold   = 2
@@ -70,7 +70,7 @@ resource "aws_elb" "infra_elb" {
   internal                  = true
   security_groups           = ["${aws_security_group.infra_elb_sg.id}"]
   subnets                   = ["${aws_subnet.public-subnets.*.id}"]
-  instances                 = []
+  instances                 = ["${aws_instance.infra_nodes.*.id}"]
 
   health_check {
     healthy_threshold   = 2

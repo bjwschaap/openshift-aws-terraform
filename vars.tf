@@ -19,3 +19,15 @@ variable "stackname" {
 variable "public_key_path" {
   default = "~/.ssh/aws_ec2_key.pub"
 }
+
+variable "github_client_id" {
+  description = "The Github OAuth Client ID to use for Openshift authentication"
+}
+
+variable "github_client_secret" {
+  description = "The Github OAuth Client Secret to use for Openshift authentication"
+}
+
+variable "github_organization" {
+  description = "The Github OAuth Organization to use for Openshift authentication"
+}

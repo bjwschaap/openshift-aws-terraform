@@ -11,7 +11,7 @@ module "openshift" {
   azs                      = "${var.azs}"
   source                   = "./modules/openshift"
   stackname                = "${var.stackname}"
-  master_instance_type     = "t2.large"
+  master_instance_type     = "t2.xlarge"
   node_instance_type       = "t2.xlarge"
   app_instance_type        = "t2.large"
   app_node_count           = 3
@@ -23,7 +23,10 @@ module "openshift" {
   public_key_path          = "${var.public_key_path}"
   public_hosted_zone       = "dev.schaap.cc"
   app_dns_prefix           = "app"
-  registry_s3_bucket_name  = "${var.stackname}-registry-2938a71237f18373c41e"
+  registry_s3_bucket_name  = "${var.stackname}-registry-2938a71237f183999c41c"
+  github_client_id         = "${var.github_client_id}"
+  github_client_secret     = "${var.github_client_secret}"
+  github_organization      = "${var.github_organization}"
 }
 
 //  Output some useful variables for quick SSH access etc.

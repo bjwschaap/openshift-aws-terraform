@@ -78,3 +78,15 @@ variable "app_dns_prefix" {
 variable "registry_s3_bucket_name" {
   description = "Name for the S3 bucket where the image registry will store its data"
 }
+
+variable "github_client_id" {
+  description = "The Github OAuth Client ID to use for Openshift authentication"
+}
+
+variable "github_client_secret" {
+  description = "The Github OAuth Client Secret to use for Openshift authentication"
+}
+
+variable "github_organization" {
+  description = "The Github OAuth Organization to use for Openshift authentication"
+}

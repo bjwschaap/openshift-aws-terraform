@@ -14,6 +14,22 @@ resource "aws_security_group" "bastion_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "Allow ICMP from within the VPC to Bastion host"
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = ["${var.vpc_cidr}"]
+  }
+
+  egress {
+    description = "Allow everything to outside"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags {
     Name    = "ose-bastion-sg"
     Project = "openshift"
@@ -59,6 +75,15 @@ resource "aws_security_group_rule" "etcd_peer_ingress" {
   source_security_group_id = "${aws_security_group.etcd_sg.id}"
 }
 
+resource "aws_security_group_rule" "etcd_egress" {
+  security_group_id        = "${aws_security_group.etcd_sg.id}"
+  type                     = "egress"
+  from_port                = "0"
+  to_port                  = "0"
+  protocol                 = "-1"
+  cidr_blocks              = ["0.0.0.0/0"]
+}
+
 // Infra nodes loadbalancer rules
 resource "aws_security_group" "infra_elb_sg" {
   name        = "ose-router-sg"
@@ -77,6 +102,14 @@ resource "aws_security_group" "infra_elb_sg" {
     description = "Allow HTTPS from internet to infra nodes"
     from_port   = 443
     to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Allow everything to outside"
+    from_port   = 0
+    to_port     = 65535
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -197,6 +230,14 @@ resource "aws_security_group" "infra_sg" {
   description = "Infra nodes security group"
   vpc_id      = "${aws_vpc.openshift.id}"
 
+  egress {
+    description = "Allow everything to outside"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags {
     Name    = "ose-infra-node-sg"
     Project = "openshift"
@@ -226,6 +267,14 @@ resource "aws_security_group" "node_sg" {
   name        = "ose-node-sg"
   description = "Application/Worker nodes security group"
   vpc_id      = "${aws_vpc.openshift.id}"
+
+  egress {
+    description = "Allow everything to outside"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   tags {
     Name    = "ose-node-sg"
@@ -305,11 +354,28 @@ resource "aws_security_group_rule" "node_ssh_bastion_ingress" {
   source_security_group_id = "${aws_security_group.bastion_sg.id}"
 }
 
+resource "aws_security_group_rule" "node_icmp_ingress" {
+  security_group_id        = "${aws_security_group.node_sg.id}"
+  type                     = "ingress"
+  from_port                = "-1"
+  to_port                  = "-1"
+  protocol                 = "icmp"
+  cidr_blocks              = ["${var.vpc_cidr}"]
+}
+
 // Master nodes rules
 resource "aws_security_group" "master_sg" {
   name        = "ose-master-sg"
   description = "Master nodes security group"
   vpc_id      = "${aws_vpc.openshift.id}"
+
+  egress {
+    description = "Allow everything to outside"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   tags {
     Name    = "ose-master-sg"

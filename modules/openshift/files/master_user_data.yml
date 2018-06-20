@@ -1,4 +1,10 @@
 #cloud-config
+repo_update: true
+repo_upgrade: all
+
+packages:
+ - NetworkManager
+
 cloud_config_modules:
 - disk_setup
 - mounts
@@ -16,6 +22,9 @@ fs_setup:
 runcmd:
 - mkdir -p /var/lib/etcd
 - mkdir -p /var/lib/origin/openshift.local.volumes
+- [ systemctl, daemon-reload ]
+- [ systemctl, enable, NetworkManager.service ]
+- [ systemctl, start, --no-block, NetworkManager.service ]
 
 mounts:
 - [ /dev/xvdc, /var/lib/etcd, xfs, "defaults" ]

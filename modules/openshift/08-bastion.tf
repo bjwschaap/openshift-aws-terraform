@@ -8,20 +8,20 @@ resource "aws_key_pair" "keypair" {
 
 //  Launch configuration for the consul cluster auto-scaling group.
 resource "aws_instance" "bastion_node" {
-  ami                  = "${data.aws_ami.CentOS7.id}"
-  instance_type        = "t2.micro"
-  iam_instance_profile = "${aws_iam_instance_profile.node_instance_profile.id}"
-  subnet_id            = "${aws_subnet.public-subnets.0.id}"
-  key_name             = "${aws_key_pair.keypair.key_name}"
-  user_data            = "${file("${path.module}/files/bastion_user_data.yml")}"
-  security_groups      = [
+  ami                     = "${data.aws_ami.CentOS7.id}"
+  instance_type           = "t2.micro"
+  iam_instance_profile    = "${aws_iam_instance_profile.node_instance_profile.id}"
+  subnet_id               = "${aws_subnet.public-subnets.0.id}"
+  key_name                = "${aws_key_pair.keypair.key_name}"
+  user_data               = "${file("${path.module}/files/bastion_user_data.yml")}"
+  vpc_security_group_ids  = [
     "${aws_security_group.bastion_sg.id}"
   ]
-  depends_on           = [
+  depends_on              = [
     "aws_iam_instance_profile.node_instance_profile",
     "aws_subnet.public-subnets"
   ]
-  root_block_device    = {
+  root_block_device       = {
     delete_on_termination = true
   }
 
