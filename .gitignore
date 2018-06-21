@@ -2,6 +2,7 @@
 *.tfstate
 *.tfstate.backup
 inventory.cfg
+.terraform.tfstate.lock.info
 
 # Module directory
 .terraform/

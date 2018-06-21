@@ -25,8 +25,4 @@ data "template_file" "inventory" {
 resource "local_file" "inventory" {
   content     = "${data.template_file.inventory.rendered}"
   filename = "${path.cwd}/inventory.cfg"
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }

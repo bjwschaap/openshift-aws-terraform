@@ -2,17 +2,19 @@
 preserve_hostname: false
 hostname: ${hostname}
 fqdn: ${hostname}.${domain}
-manage_etc_hosts: true
+manage_etc_hosts: false
 
 repo_update: true
 repo_upgrade: all
-
+package_upgrade: true
 packages:
- - NetworkManager
+- NetworkManager
 
 cloud_config_modules:
 - disk_setup
 - mounts
+- runcmd
+- package_update_upgrade_install
 
 fs_setup:
 - label: emptydir
@@ -23,6 +25,7 @@ fs_setup:
 runcmd:
 - mkdir -p /var/lib/origin/openshift.local.volumes
 - [ systemctl, daemon-reload ]
+- [ systemctl, restart, systemd-hostnamed]
 - [ systemctl, enable, NetworkManager.service ]
 - [ systemctl, start, --no-block, NetworkManager.service ]
 

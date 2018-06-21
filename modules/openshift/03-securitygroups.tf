@@ -401,6 +401,24 @@ resource "aws_security_group_rule" "master_ext_elb_ingress" {
   source_security_group_id = "${aws_security_group.master_ext_elb_sg.id}"
 }
 
+resource "aws_security_group_rule" "api_int_elb_ingress" {
+  security_group_id        = "${aws_security_group.master_sg.id}"
+  type                     = "ingress"
+  from_port                = 8443
+  to_port                  = 8444
+  protocol                 = "tcp"
+  source_security_group_id = "${aws_security_group.master_int_elb_sg.id}"
+}
+
+resource "aws_security_group_rule" "api_ext_elb_ingress" {
+  security_group_id        = "${aws_security_group.master_sg.id}"
+  type                     = "ingress"
+  from_port                = 8443
+  to_port                  = 8444
+  protocol                 = "tcp"
+  source_security_group_id = "${aws_security_group.master_ext_elb_sg.id}"
+}
+
 resource "aws_security_group_rule" "master_node_dns_udp_ingress" {
   security_group_id        = "${aws_security_group.master_sg.id}"
   type                     = "ingress"
@@ -428,6 +446,15 @@ resource "aws_security_group_rule" "master_node_api_ingress" {
   source_security_group_id = "${aws_security_group.node_sg.id}"
 }
 
+resource "aws_security_group_rule" "master_api_node_api_ingress" {
+  security_group_id        = "${aws_security_group.master_sg.id}"
+  type                     = "ingress"
+  from_port                = 8443
+  to_port                  = 8444
+  protocol                 = "tcp"
+  source_security_group_id = "${aws_security_group.node_sg.id}"
+}
+
 resource "aws_security_group_rule" "master_node_logging_tcp_ingress" {
   security_group_id        = "${aws_security_group.master_sg.id}"
   type                     = "ingress"
@@ -451,6 +478,15 @@ resource "aws_security_group_rule" "master_master_api_ingress" {
   type                     = "ingress"
   from_port                = "${var.master_api_port}"
   to_port                  = "${var.master_api_port}"
+  protocol                 = "tcp"
+  source_security_group_id = "${aws_security_group.master_sg.id}"
+}
+
+resource "aws_security_group_rule" "master_api_master_api_ingress" {
+  security_group_id        = "${aws_security_group.master_sg.id}"
+  type                     = "ingress"
+  from_port                = 8443
+  to_port                  = 8444
   protocol                 = "tcp"
   source_security_group_id = "${aws_security_group.master_sg.id}"
 }

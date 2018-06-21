@@ -4,6 +4,12 @@ data "aws_route53_zone" "selected" {
   name         = "${var.public_hosted_zone}."
 }
 
+resource "aws_route53_zone" "openshift_reverse" {
+  name          = "${format("%s.%s.in-addr.arpa", element(split(".", var.vpc_cidr), 1), element(split(".", var.vpc_cidr), 0))}"
+  comment       = "Openshift Reverse Private DNS Zone"
+  vpc_id        = "${aws_vpc.openshift.id}"
+}
+
 // Record pointing to the external ELB for the Openshift Masters
 resource "aws_route53_record" "openshift-master" {
   zone_id = "${data.aws_route53_zone.selected.zone_id}"
@@ -53,6 +59,22 @@ resource "aws_route53_record" "master_nodes" {
   records = ["${element(aws_instance.master_nodes.*.private_ip, count.index)}"]
 }
 
+resource "aws_route53_record" "master_nodes_reverse" {
+  count   = "${var.master_node_count}"
+  zone_id = "${aws_route53_zone.openshift_reverse.zone_id}"
+  name = "${format(
+    "%s.%s.%s.%s.in-addr.arpa.",
+      element( split(".", element(aws_instance.master_nodes.*.private_ip, count.index)) ,3),
+      element( split(".", element(aws_instance.master_nodes.*.private_ip, count.index)) ,2),
+      element( split(".", element(aws_instance.master_nodes.*.private_ip, count.index)) ,1),
+      element( split(".", element(aws_instance.master_nodes.*.private_ip, count.index)) ,0),
+    )
+  }"
+  type    = "PTR"
+  ttl     = 300
+  records = ["${element(aws_instance.master_nodes.*.tags.Name, count.index)}"]
+}
+
 // Records for Infra nodes
 resource "aws_route53_record" "infra_nodes" {
   count   = "${var.infra_node_count}"
@@ -63,6 +85,22 @@ resource "aws_route53_record" "infra_nodes" {
   records = ["${element(aws_instance.infra_nodes.*.private_ip, count.index)}"]
 }
 
+resource "aws_route53_record" "infra_nodes_reverse" {
+  count   = "${var.infra_node_count}"
+  zone_id = "${aws_route53_zone.openshift_reverse.zone_id}"
+  name = "${format(
+    "%s.%s.%s.%s.in-addr.arpa.",
+      element( split(".", element(aws_instance.infra_nodes.*.private_ip, count.index)) ,3),
+      element( split(".", element(aws_instance.infra_nodes.*.private_ip, count.index)) ,2),
+      element( split(".", element(aws_instance.infra_nodes.*.private_ip, count.index)) ,1),
+      element( split(".", element(aws_instance.infra_nodes.*.private_ip, count.index)) ,0),
+    )
+  }"
+  type    = "PTR"
+  ttl     = 300
+  records = ["${element(aws_instance.infra_nodes.*.tags.Name, count.index)}"]
+}
+
 // Records for the app/worker nodes
 resource "aws_route53_record" "app_nodes" {
   count   = "${var.app_node_count}"
@@ -70,7 +108,23 @@ resource "aws_route53_record" "app_nodes" {
   name    = "ose-app-${count.index + 1}.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = 300
-  records = ["${element(aws_instance.infra_nodes.*.private_ip, count.index)}"]
+  records = ["${element(aws_instance.app_nodes.*.private_ip, count.index)}"]
+}
+
+resource "aws_route53_record" "app_nodes_reverse" {
+  count   = "${var.app_node_count}"
+  zone_id = "${aws_route53_zone.openshift_reverse.zone_id}"
+  name = "${format(
+    "%s.%s.%s.%s.in-addr.arpa.",
+      element( split(".", element(aws_instance.app_nodes.*.private_ip, count.index)) ,3),
+      element( split(".", element(aws_instance.app_nodes.*.private_ip, count.index)) ,2),
+      element( split(".", element(aws_instance.app_nodes.*.private_ip, count.index)) ,1),
+      element( split(".", element(aws_instance.app_nodes.*.private_ip, count.index)) ,0),
+    )
+  }"
+  type    = "PTR"
+  ttl     = 300
+  records = ["${element(aws_instance.app_nodes.*.tags.Name, count.index)}"]
 }
 
 // Record for the Bastion host
