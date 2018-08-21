@@ -67,6 +67,11 @@ variable "private_subnet_cidr_list" {
   default = ["10.15.4.0/24", "10.15.5.0/24", "10.15.6.0/24"]
 }
 
+variable "osm_cluster_network_cidr" {
+  description = "The network CIDR to use for ovs-multitenant-network overlay"
+  default = "172.16.0.0/16"
+}
+
 variable "key_name" {
   description = "The name of the key to user for ssh access, e.g: ose-key"
 }

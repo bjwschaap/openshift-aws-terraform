@@ -22,6 +22,7 @@ resource "aws_instance" "bastion_node" {
     "aws_subnet.public-subnets"
   ]
   root_block_device       = {
+    volume_type           = "gp2"
     delete_on_termination = true
   }
 

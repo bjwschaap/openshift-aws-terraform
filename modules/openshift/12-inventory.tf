@@ -1,5 +1,32 @@
 //  Generates the inventory file needed by Ansible to perform the openshift
 // installation.
+data "template_file" "master_entries" {
+  count = "${var.master_node_count}"
+  template = "$${hostname} openshift_node_labels=\"{'role': 'master'}\" openshift_hostname=$${private_dns}"
+  vars {
+    hostname    = "${element(aws_instance.master_nodes.*.tags.Name, count.index)}"
+    private_dns = "${element(aws_instance.master_nodes.*.private_dns, count.index)}"
+  }
+}
+
+data "template_file" "infra_entries" {
+  count = "${var.infra_node_count}"
+  template = "$${hostname} openshift_node_labels=\"{'role': 'infra', 'region': 'infra'}\" openshift_hostname=$${private_dns}"
+  vars {
+    hostname    = "${element(aws_instance.infra_nodes.*.tags.Name, count.index)}"
+    private_dns = "${element(aws_instance.infra_nodes.*.private_dns, count.index)}"
+  }
+}
+
+data "template_file" "app_entries" {
+  count = "${var.app_node_count}"
+  template = "$${hostname} openshift_node_labels=\"{'role': 'app'}\" openshift_hostname=$${private_dns}"
+  vars {
+    hostname    = "${element(aws_instance.app_nodes.*.tags.Name, count.index)}"
+    private_dns = "${element(aws_instance.app_nodes.*.private_dns, count.index)}"
+  }
+}
+
 data "template_file" "inventory" {
   template = "${file("${path.module}/files/inventory.template.cfg")}"
 
@@ -14,10 +41,15 @@ data "template_file" "inventory" {
     infra_node_count     = "${var.infra_node_count}"
     app_dns_prefix       = "${var.app_dns_prefix}"
     vpc_cidr             = "${var.vpc_cidr}"
+    cluster_network_cidr = "${var.osm_cluster_network_cidr}"
+    stackname            = "${var.stackname}"
     github_client_id     = "${var.github_client_id}"
     github_client_secret = "${var.github_client_secret}"
     github_organization  = "${var.github_organization}"
     registry_s3_bucket   = "${var.registry_s3_bucket_name}"
+    master_entries       = "${join("\n", data.template_file.master_entries.*.rendered)}"
+    infra_entries        = "${join("\n", data.template_file.infra_entries.*.rendered)}"
+    app_entries          = "${join("\n", data.template_file.app_entries.*.rendered)}"
   }
 }
 

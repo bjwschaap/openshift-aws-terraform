@@ -22,6 +22,7 @@ resource "aws_instance" "infra_nodes" {
     "${aws_security_group.infra_sg.id}"
   ]
   root_block_device       = {
+    volume_type           = "gp2"
     delete_on_termination = true
   }
   ebs_block_device        = {
@@ -55,9 +56,11 @@ resource "aws_instance" "infra_nodes" {
   }
 
   tags {
-    Name              = "ose-infra-${count.index + 1}.${var.public_hosted_zone}"
-    Project           = "openshift"
-    openshift-role    = "infra"
-    KubernetesCluster = "${var.stackname}"
+    Name                                     = "ose-infra-${count.index + 1}.${var.public_hosted_zone}"
+    Project                                  = "openshift"
+    openshift-role                           = "infra"
+    kubespray-role                           = "etcd"
+    KubernetesCluster                        = "${var.stackname}"
+    "kubernetes.io/cluster/${var.stackname}" = "${var.stackname}-${var.region}"
   }
 }
